@@ -1,9 +1,7 @@
-catkin==0.6.18
 cycler==0.10.0
 Cython==0.24.1
 decorator==4.0.10
 entrypoints==0.2.2
-gencpp==0.5.5
 genlisp==0.4.15
 genmsg==0.5.7
 genpy==0.5.10
@@ -40,7 +38,6 @@ qt-gui==0.2.30
 qt-gui-py-common==0.2.30
 qtconsole==4.2.1
 rocon-console==0.1.23
-rosgraph==1.11.20
 rqt-gui==0.2.14
 scipy==0.18.1
 simplegeneric==0.8.1
