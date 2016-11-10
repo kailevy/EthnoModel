@@ -11,7 +11,7 @@ def agent_portrayal(agent):
                  "Filled": "true",
                  "Layer": 0,
                  "Color": LABEL_KEY[agent.tag],
-                 "text": BEHAVIOR_KEY[0b10 * agent.homo + 0b01 * agent.hetero],
+                 "text": BEHAVIOR_KEY[agent.behavior],
                  "text_color": "black",
                  "r": 0.5}
     return portrayal

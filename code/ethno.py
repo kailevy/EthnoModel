@@ -1,11 +1,15 @@
 from mesa import Agent, Model
 from mesa.space import MultiGrid
 from mesa.time import StagedActivation
+from mesa.datacollection import DataCollector
 import random
 
 TAGS = 4
 BASE_PTR = 0.12
+RECEIVE_PTR = 0.03
+GIVE_PTR = -0.01
 DEATH_RATE = 0.1
+BEHAVIOR_KEY = {0b11:"H", 0b10:"E", 0b01:"T", 0b00:"S"}
 
 def flip(p):
     return random.random() < p
@@ -23,6 +27,7 @@ class EthnoAgent(Agent):
         self.tag = tag
         self.homo = homo
         self.hetero = hetero
+        self.behavior = 0b10 * self.homo + 0b01 * self.hetero
         self.ptr = BASE_PTR
         self.neighborhood = None
 
@@ -58,25 +63,34 @@ class EthnoAgent(Agent):
         for neighbor in self.model.grid.get_neighbors(self.pos, moore=True, include_center=False, radius=1):
             if neighbor.tag == self.tag:
                 if self.homo:
-                    self.ptr -= 0.01
+                    self.ptr += GIVE_PTR
                 if neighbor.homo:
-                    self.ptr += 0.03
+                    self.ptr += RECEIVE_PTR
             else:
                 if self.hetero:
-                    self.ptr -= 0.01
+                    self.ptr += GIVE_PTR
                 if neighbor.hetero:
-                    self.ptr += 0.03
+                    self.ptr += RECEIVE_PTR
 
 class EthnoModel(Model):
-    def __init__(self, N, width, height, immigrate, mutate):
+    def __init__(self, N, width, height, immigrate, mutate, max_iters=2000):
         """
         N: number of agents to start with
         """
         self.immigrate = immigrate
         self.mutate = mutate
         self.grid = MultiGrid(width, height, True)
+        self.running = True
+        self.max_iters = max_iters
+        self.iter = 0
         self.schedule = StagedActivation(self,stage_list=['get_ptr', 'reproduce', 'die'],shuffle=True)
         self.num_agents = self.new_agents(N)
+        self.datacollector = DataCollector(
+            model_reporters = {"Total Population": lambda m: m.num_agents,
+                            "Selfish": lambda m: self.count_behavior(m, 0b00),
+                            "Traitor": lambda m: self.count_behavior(m, 0b01),
+                            "Ethnocentric": lambda m: self.count_behavior(m, 0b10),
+                            "Humanitarian": lambda m: self.count_behavior(m, 0b11)})
 
     def new_agents(self, num):
         n = 0
@@ -91,5 +105,17 @@ class EthnoModel(Model):
         return n
 
     def step(self):
+        self.datacollector.collect(self)
         self.num_agents += self.new_agents(self.immigrate)
         self.schedule.step()
+        self.iter += 1
+        if self.iter > self.max_iters:
+            self.running = False
+
+    @staticmethod
+    def count_behavior(model, behavior):
+        count = 0
+        for agent in model.schedule.agents:
+            if agent.behavior == behavior:
+                count += 1
+        return count
