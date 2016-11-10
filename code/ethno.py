@@ -35,7 +35,14 @@ class EthnoAgent(Agent):
             self.neighborhood = self.model.grid.get_neighborhood(self.pos, moore=True, include_center=False)
         adjacent_empty = [c for c in self.neighborhood if self.model.grid.is_cell_empty(c)]
         if flip(self.ptr) and adjacent_empty:
-            a = EthnoAgent(self.model.num_agents, self.model, self.tag, self.homo, self.hetero)
+            if flip(self.model.mutate):
+                tag = random.choice([i for i in range(1,TAGS+1) if not i==self.tag])
+            else:
+                tag = self.tag
+            # use bitwise xor to flip binaries if mutating
+            homo = int(flip(self.model.mutate))^self.homo
+            hetero = int(flip(self.model.mutate))^self.hetero
+            a = EthnoAgent(self.model.num_agents, self.model, tag, homo, hetero)
             self.model.schedule.add(a)
             self.model.grid.place_agent(a, random.choice(adjacent_empty))
             self.model.num_agents += 1
@@ -61,21 +68,28 @@ class EthnoAgent(Agent):
                     self.ptr += 0.03
 
 class EthnoModel(Model):
-    def __init__(self, N, width, height):
+    def __init__(self, N, width, height, immigrate, mutate):
         """
         N: number of agents to start with
         """
+        self.immigrate = immigrate
+        self.mutate = mutate
         self.grid = MultiGrid(width, height, True)
         self.schedule = StagedActivation(self,stage_list=['get_ptr', 'reproduce', 'die'],shuffle=True)
-        self.num_agents = N
+        self.num_agents = self.new_agents(N)
 
-        for i in range(N):
+    def new_agents(self, num):
+        n = 0
+        for i in range(num):
             a = EthnoAgent(i, self, random.randint(1, TAGS), random.randint(0,1), random.randint(0,1))
-            self.schedule.add(a)
-            # Add the agent to a random grid cell
             x = random.randrange(self.grid.width)
             y = random.randrange(self.grid.height)
-            self.grid.place_agent(a, (x, y))
+            if self.grid.is_cell_empty((x,y)):
+                self.grid.place_agent(a, (x, y))
+                self.schedule.add(a)
+                n += 1
+        return n
 
     def step(self):
+        self.num_agents += self.new_agents(self.immigrate)
         self.schedule.step()
