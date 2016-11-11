@@ -37,7 +37,7 @@ class EthnoAgent(Agent):
 
     def reproduce(self):
         if not self.neighborhood:
-            self.neighborhood = self.model.grid.get_neighborhood(self.pos, moore=True, include_center=False)
+            self.neighborhood = self.model.grid.get_neighborhood(self.pos, moore=False, include_center=False)
         adjacent_empty = [c for c in self.neighborhood if self.model.grid.is_cell_empty(c)]
         if flip(self.ptr) and adjacent_empty:
             if flip(self.model.mutate):
@@ -58,9 +58,8 @@ class EthnoAgent(Agent):
             self.model.grid._remove_agent(self.pos, self)
             self.model.num_agents -= 1
 
-
     def play_neighbors(self):
-        for neighbor in self.model.grid.get_neighbors(self.pos, moore=True, include_center=False, radius=1):
+        for neighbor in self.model.grid.get_neighbors(self.pos, moore=False, include_center=False, radius=1):
             if neighbor.tag == self.tag:
                 if self.homo:
                     self.ptr += GIVE_PTR
