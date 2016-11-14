@@ -84,12 +84,14 @@ class EthnoModel(Model):
         self.iter = 0
         self.schedule = StagedActivation(self,stage_list=['get_ptr', 'reproduce', 'die'],shuffle=True)
         self.num_agents = self.new_agents(N)
-        self.datacollector = DataCollector(
-            model_reporters = {"Total Population": lambda m: m.num_agents,
-                            "Selfish": lambda m: self.count_behavior(m, 0b00),
-                            "Traitor": lambda m: self.count_behavior(m, 0b01),
-                            "Ethnocentric": lambda m: self.count_behavior(m, 0b10),
-                            "Humanitarian": lambda m: self.count_behavior(m, 0b11)})
+        default_data = {"Total Population": lambda m: m.num_agents,
+                        "Selfish": lambda m: self.count_behavior(m, 0b00),
+                        "Traitor": lambda m: self.count_behavior(m, 0b01),
+                        "Ethnocentric": lambda m: self.count_behavior(m, 0b10),
+                        "Humanitarian": lambda m: self.count_behavior(m, 0b11)}
+        tag_behavior = {str(i)+BEHAVIOR_KEY[j]: lambda m,i=i,j=j: self.count_tag_behavior(m, i, j) for i in range(1, TAGS+1)
+                        for j in range(4)}
+        self.datacollector = DataCollector(model_reporters = {**default_data, **tag_behavior})
 
     def new_agents(self, num):
         n = 0
@@ -116,5 +118,13 @@ class EthnoModel(Model):
         count = 0
         for agent in model.schedule.agents:
             if agent.behavior == behavior:
+                count += 1
+        return count
+
+    @staticmethod
+    def count_tag_behavior(model, tag, behavior):
+        count = 0
+        for agent in model.schedule.agents:
+            if agent.tag == tag and agent.behavior == behavior:
                 count += 1
         return count
