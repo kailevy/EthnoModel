@@ -15,27 +15,35 @@ def flip(p):
     return random.random() < p
 
 class EthnoAgent(Agent):
-    def __init__(self, id, model, tag, homo, hetero):
+    def __init__(self, id, model, tag, behavior):
         """
         id: unique model id, not actually unique
         model: the model
         tag: which public tag the agent has
-        homo: whether or not the agent helps those with the same tag
-        hetero: whether or not the agent helps those with different tag
+        behavior: agent's behavior, encoded as 2-bit binary string where:
+            - first bit is homogenous cooperation
+            - second bit is heterogenous cooperation
         """
         super().__init__(id, model)
         self.tag = tag
-        self.homo = homo
-        self.hetero = hetero
-        self.behavior = 0b10 * self.homo + 0b01 * self.hetero
+        self.behavior = behavior
+        self.homo = behavior // 2
+        self.hetero = behavior % 2
         self.ptr = BASE_PTR
         self.neighborhood = None
 
     def get_ptr(self):
+        """
+        resets the ptr of the agent and then adjusts it based off of neighbors
+        """
         self.ptr = BASE_PTR
         self.play_neighbors()
 
     def reproduce(self):
+        """
+        reproduces with a chance by the agent's ptr if there is an adjacent empty space
+        and with mutations governed by the mutation rate
+        """
         if not self.neighborhood:
             self.neighborhood = self.model.grid.get_neighborhood(self.pos, moore=False, include_center=False)
         adjacent_empty = [c for c in self.neighborhood if self.model.grid.is_cell_empty(c)]
@@ -47,18 +55,28 @@ class EthnoAgent(Agent):
             # use bitwise xor to flip binaries if mutating
             homo = int(flip(self.model.mutate))^self.homo
             hetero = int(flip(self.model.mutate))^self.hetero
-            a = EthnoAgent(self.model.num_agents, self.model, tag, homo, hetero)
+            behavior = homo * 0b10 + hetero * 0b01
+            if behavior not in self.model.allowed_behaviors:
+                #ignore the mutation
+                behavior  = self.behavior
+            a = EthnoAgent(self.model.num_agents, self.model, tag, behavior)
             self.model.schedule.add(a)
             self.model.grid.place_agent(a, random.choice(adjacent_empty))
             self.model.num_agents += 1
 
     def die(self):
+        """
+        removes the agent by death rate
+        """
         if flip(DEATH_RATE):
             self.model.schedule.remove(self)
             self.model.grid._remove_agent(self.pos, self)
             self.model.num_agents -= 1
 
     def play_neighbors(self):
+        """
+        adds to ptr based off of whether neighbors will cooperate
+        """
         for neighbor in self.model.grid.get_neighbors(self.pos, moore=False, include_center=False, radius=1):
             if neighbor.tag == self.tag:
                 if self.homo:
@@ -72,14 +90,21 @@ class EthnoAgent(Agent):
                     self.ptr += RECEIVE_PTR
 
 class EthnoModel(Model):
-    def __init__(self, N, width, height, immigrate, mutate, max_iters=2000):
+    def __init__(self, N, width, height, immigrate, mutate, allowed_behaviors=range(4), max_iters=2000):
         """
         N: number of agents to start with
+        width: width of grid
+        height: height of grid
+        immigrate: number of random immigrants per round
+        mutate: mutation rate
+        allowed_behaviors: list of allowed behaviors (encoded as 2-bit binary string)
+        max_iters: maximum number of steps to run
         """
         self.immigrate = immigrate
         self.mutate = mutate
         self.grid = MultiGrid(width, height, True)
         self.running = True
+        self.allowed_behaviors = allowed_behaviors
         self.max_iters = max_iters
         self.iter = 0
         self.schedule = StagedActivation(self,stage_list=['get_ptr', 'reproduce', 'die'],shuffle=True)
@@ -94,9 +119,12 @@ class EthnoModel(Model):
         self.datacollector = DataCollector(model_reporters = {**default_data, **tag_behavior})
 
     def new_agents(self, num):
+        """
+        adds num new agents
+        """
         n = 0
         for i in range(num):
-            a = EthnoAgent(i, self, random.randint(1, TAGS), random.randint(0,1), random.randint(0,1))
+            a = EthnoAgent(i, self, random.randint(1, TAGS), random.choice(self.allowed_behaviors))
             x = random.randrange(self.grid.width)
             y = random.randrange(self.grid.height)
             if self.grid.is_cell_empty((x,y)):
@@ -106,6 +134,9 @@ class EthnoModel(Model):
         return n
 
     def step(self):
+        """
+        collects data, adds new agents by immigration, then lets all agents step
+        """
         self.datacollector.collect(self)
         self.num_agents += self.new_agents(self.immigrate)
         self.schedule.step()
@@ -115,6 +146,9 @@ class EthnoModel(Model):
 
     @staticmethod
     def count_behavior(model, behavior):
+        """
+        counts agents with a given behavior
+        """
         count = 0
         for agent in model.schedule.agents:
             if agent.behavior == behavior:
@@ -123,6 +157,9 @@ class EthnoModel(Model):
 
     @staticmethod
     def count_tag_behavior(model, tag, behavior):
+        """
+        counts agents with a given tag and behavior
+        """
         count = 0
         for agent in model.schedule.agents:
             if agent.tag == tag and agent.behavior == behavior:

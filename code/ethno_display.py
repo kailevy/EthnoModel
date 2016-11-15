@@ -24,6 +24,6 @@ grid = CanvasGrid(agent_portrayal, 50, 50, 750, 750)
 server = ModularServer(EthnoModel,
                        [grid],
                        "Ethnocentrism Model",
-                       10, 50, 50, 1, 0.005)
+                       10, 50, 50, 1, 0.005, [0b00, 0b01, 0b10 0b11])
 server.port = 8889
 server.launch()
