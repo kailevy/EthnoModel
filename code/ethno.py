@@ -9,7 +9,11 @@ BASE_PTR = 0.12
 RECEIVE_PTR = 0.03
 GIVE_PTR = -0.01
 DEATH_RATE = 0.1
-BEHAVIOR_KEY = {0b11:"H", 0b10:"E", 0b01:"T", 0b00:"S"}
+BEHAVIOR_KEY = {0b111:"H", 0b100:"E", 0b011:"T", 0b000:"S", 0b010:"wT", 0b101: "wA", 0b001:"pT", 0b110:"A"}
+# wT = weird traitor, pT = pure traitor, wA = weird alliance
+# first bit will cooperate with those of same tag
+# second bit behavior will cooperate with those tags one away
+# third bit behavior will cooperate with those two away
 
 def flip(p):
     return random.random() < p
@@ -21,13 +25,15 @@ class EthnoAgent(Agent):
         model: the model
         tag: which public tag the agent has
         behavior: agent's behavior, encoded as 2-bit binary string where:
-            - first bit is homogenous cooperation
-            - second bit is heterogenous cooperation
+            - first bit is one-bit away cooperation
+            - second bit is homogenous cooperation
+            - third bit is heterogenous cooperation (opposites)
         """
         super().__init__(id, model)
         self.tag = tag
         self.behavior = behavior
-        self.homo = behavior // 2
+        self.homo = behavior // 4
+        self.alliance = (behavior % 4) // 2
         self.hetero = behavior % 2
         self.ptr = BASE_PTR
         self.neighborhood = None
@@ -53,9 +59,10 @@ class EthnoAgent(Agent):
             else:
                 tag = self.tag
             # use bitwise xor to flip binaries if mutating
+            alliance = int(flip(self.model.mutate))^self.alliance
             homo = int(flip(self.model.mutate))^self.homo
             hetero = int(flip(self.model.mutate))^self.hetero
-            behavior = homo * 0b10 + hetero * 0b01
+            behavior = homo * 0b100 + alliance * 0b010 + hetero * 0b001
             if behavior not in self.model.allowed_behaviors:
                 #ignore the mutation
                 behavior  = self.behavior
@@ -83,6 +90,11 @@ class EthnoAgent(Agent):
                     self.ptr += GIVE_PTR
                 if neighbor.homo:
                     self.ptr += RECEIVE_PTR
+            elif abs(neighbor.tag - self.tag)%2 == 1:
+                if self.alliance:
+                    self.ptr += GIVE_PTR
+                if neighbor.alliance:
+                    self.ptr += RECEIVE_PTR
             else:
                 if self.hetero:
                     self.ptr += GIVE_PTR
@@ -90,7 +102,7 @@ class EthnoAgent(Agent):
                     self.ptr += RECEIVE_PTR
 
 class EthnoModel(Model):
-    def __init__(self, N, width, height, immigrate, mutate, allowed_behaviors=range(4), max_iters=2000):
+    def __init__(self, N, width, height, immigrate, mutate, allowed_behaviors=range(8), max_iters=2000):
         """
         N: number of agents to start with
         width: width of grid
