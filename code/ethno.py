@@ -32,12 +32,11 @@ class EthnoAgent(Agent):
         self.ptr = BASE_PTR
         self.neighborhood = None
 
-    def get_ptr(self):
+    def reset_ptr(self):
         """
         resets the ptr of the agent and then adjusts it based off of neighbors
         """
         self.ptr = BASE_PTR
-        self.play_neighbors()
 
     def reproduce(self):
         """
@@ -75,22 +74,26 @@ class EthnoAgent(Agent):
 
     def play_neighbors(self):
         """
-        adds to ptr based off of whether neighbors will cooperate
+        adds to neighbor's ptr based off of whether we will cooperate (with perception error),
+        and subtract from own
         """
         for neighbor in self.model.grid.get_neighbors(self.pos, moore=False, include_center=False, radius=1):
-            if neighbor.tag == self.tag:
+            misperceive = flip(self.model.misperception)
+            if misperceive:
+                neighbor_tag = random.choice([i for i in range(1,TAGS+1) if not i==neighbor.tag])
+            else:
+                neighbor_tag = neighbor.tag
+            if self.tag == neighbor_tag:
                 if self.homo:
+                    neighbor.ptr += RECEIVE_PTR
                     self.ptr += GIVE_PTR
-                if neighbor.homo:
-                    self.ptr += RECEIVE_PTR
             else:
                 if self.hetero:
+                    neighbor.ptr += RECEIVE_PTR
                     self.ptr += GIVE_PTR
-                if neighbor.hetero:
-                    self.ptr += RECEIVE_PTR
 
 class EthnoModel(Model):
-    def __init__(self, N, width, height, immigrate, mutate, allowed_behaviors=range(4), max_iters=2000):
+    def __init__(self, N, width, height, immigrate, mutate, misperception, allowed_behaviors=range(4), max_iters=2000):
         """
         N: number of agents to start with
         width: width of grid
@@ -102,12 +105,13 @@ class EthnoModel(Model):
         """
         self.immigrate = immigrate
         self.mutate = mutate
+        self.misperception = misperception
         self.grid = MultiGrid(width, height, True)
         self.running = True
         self.allowed_behaviors = allowed_behaviors
         self.max_iters = max_iters
         self.iter = 0
-        self.schedule = StagedActivation(self,stage_list=['get_ptr', 'reproduce', 'die'],shuffle=True)
+        self.schedule = StagedActivation(self,stage_list=['reset_ptr', 'play_neighbors', 'reproduce', 'die'],shuffle=True)
         self.num_agents = self.new_agents(N)
         default_data = {"Total Population": lambda m: m.num_agents,
                         "Selfish": lambda m: self.count_behavior(m, 0b00),
