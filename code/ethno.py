@@ -3,6 +3,7 @@ from mesa.space import MultiGrid
 from mesa.time import StagedActivation
 from mesa.datacollection import DataCollector
 import random
+import numpy as np
 
 TAGS = 4
 BASE_PTR = 0.12
@@ -15,7 +16,7 @@ def flip(p):
     return random.random() < p
 
 class EthnoAgent(Agent):
-    def __init__(self, id, model, tag, behavior):
+    def __init__(self, id, model, tag, behavior, misperception):
         """
         id: unique model id, not actually unique
         model: the model
@@ -23,10 +24,12 @@ class EthnoAgent(Agent):
         behavior: agent's behavior, encoded as 2-bit binary string where:
             - first bit is homogenous cooperation
             - second bit is heterogenous cooperation
+        misperception: agent's misperception rate
         """
         super().__init__(id, model)
         self.tag = tag
         self.behavior = behavior
+        self.misperception = misperception
         self.homo = behavior // 2
         self.hetero = behavior % 2
         self.ptr = BASE_PTR
@@ -55,10 +58,14 @@ class EthnoAgent(Agent):
             homo = int(flip(self.model.mutate))^self.homo
             hetero = int(flip(self.model.mutate))^self.hetero
             behavior = homo * 0b10 + hetero * 0b01
+            misperception = self.misperception + random.uniform(self.model.max_misperception * -0.1, self.model.max_misperception * 0.1) # 10% misperception mutation
+            # limit between 0 and max
+            misperception = max(0, misperception)
+            misperception = min(self.model.max_misperception, misperception)
             if behavior not in self.model.allowed_behaviors:
                 #ignore the mutation
                 behavior  = self.behavior
-            a = EthnoAgent(self.model.num_agents, self.model, tag, behavior)
+            a = EthnoAgent(self.model.num_agents, self.model, tag, behavior, misperception)
             self.model.schedule.add(a)
             self.model.grid.place_agent(a, random.choice(adjacent_empty))
             self.model.num_agents += 1
@@ -78,7 +85,7 @@ class EthnoAgent(Agent):
         and subtract from own
         """
         for neighbor in self.model.grid.get_neighbors(self.pos, moore=False, include_center=False, radius=1):
-            misperceive = flip(self.model.misperception)
+            misperceive = flip(self.misperception)
             if misperceive:
                 neighbor_tag = random.choice([i for i in range(1,TAGS+1) if not i==neighbor.tag])
             else:
@@ -93,19 +100,20 @@ class EthnoAgent(Agent):
                     self.ptr += GIVE_PTR
 
 class EthnoModel(Model):
-    def __init__(self, N, width, height, immigrate, mutate, misperception, allowed_behaviors=range(4), max_iters=2000):
+    def __init__(self, N, width, height, immigrate, mutate, max_misperception, allowed_behaviors=range(4), max_iters=2000):
         """
         N: number of agents to start with
         width: width of grid
         height: height of grid
         immigrate: number of random immigrants per round
         mutate: mutation rate
+        max_misperception: maximum misperception rate for agents
         allowed_behaviors: list of allowed behaviors (encoded as 2-bit binary string)
         max_iters: maximum number of steps to run
         """
         self.immigrate = immigrate
         self.mutate = mutate
-        self.misperception = misperception
+        self.max_misperception = max_misperception
         self.grid = MultiGrid(width, height, True)
         self.running = True
         self.allowed_behaviors = allowed_behaviors
@@ -117,7 +125,8 @@ class EthnoModel(Model):
                         "Selfish": lambda m: self.count_behavior(m, 0b00),
                         "Traitor": lambda m: self.count_behavior(m, 0b01),
                         "Ethnocentric": lambda m: self.count_behavior(m, 0b10),
-                        "Humanitarian": lambda m: self.count_behavior(m, 0b11)}
+                        "Humanitarian": lambda m: self.count_behavior(m, 0b11),
+                        "Misperception Stats": lambda m: self.calc_misperception(m)}
         tag_behavior = {str(i)+BEHAVIOR_KEY[j]: lambda m,i=i,j=j: self.count_tag_behavior(m, i, j) for i in range(1, TAGS+1)
                         for j in range(4)}
         self.datacollector = DataCollector(model_reporters = {**default_data, **tag_behavior})
@@ -128,7 +137,7 @@ class EthnoModel(Model):
         """
         n = 0
         for i in range(num):
-            a = EthnoAgent(i, self, random.randint(1, TAGS), random.choice(self.allowed_behaviors))
+            a = EthnoAgent(i, self, random.randint(1, TAGS), random.choice(self.allowed_behaviors), random.uniform(0, self.max_misperception))
             x = random.randrange(self.grid.width)
             y = random.randrange(self.grid.height)
             if self.grid.is_cell_empty((x,y)):
@@ -147,6 +156,16 @@ class EthnoModel(Model):
         self.iter += 1
         if self.iter > self.max_iters:
             self.running = False
+
+    @staticmethod
+    def calc_misperception(model):
+        """
+        Calculates mean, median, standard dev of misperception trait
+        """
+        misperceptions = []
+        for agent in model.schedule.agents:
+            misperceptions.append(agent.misperception)
+        return (np.mean(misperceptions), np.median(misperceptions), np.std(misperceptions))
 
     @staticmethod
     def count_behavior(model, behavior):
