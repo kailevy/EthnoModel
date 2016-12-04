@@ -79,10 +79,9 @@ class EthnoAgent(Agent):
         """
         for neighbor in self.model.grid.get_neighbors(self.pos, moore=False, include_center=False, radius=1):
             misperceive = flip(self.model.misperception)
+            neighbor_tag = neighbor.tag
             if misperceive:
-                neighbor_tag = random.choice([i for i in range(1,TAGS+1) if not i==neighbor.tag])
-            else:
-                neighbor_tag = neighbor.tag
+                neighbor_tag = (neighbor_tag + 1)%4
             if self.tag == neighbor_tag:
                 if self.homo:
                     neighbor.ptr += RECEIVE_PTR
