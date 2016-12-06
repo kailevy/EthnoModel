@@ -86,10 +86,9 @@ class EthnoAgent(Agent):
         """
         for neighbor in self.model.grid.get_neighbors(self.pos, moore=False, include_center=False, radius=1):
             misperceive = flip(self.misperception)
+            neighbor_tag = neighbor.tag
             if misperceive:
-                neighbor_tag = random.choice([i for i in range(1,TAGS+1) if not i==neighbor.tag])
-            else:
-                neighbor_tag = neighbor.tag
+                neighbor_tag = (neighbor_tag + 1)%4
             if self.tag == neighbor_tag:
                 if self.homo:
                     neighbor.ptr += RECEIVE_PTR
@@ -126,7 +125,9 @@ class EthnoModel(Model):
                         "Traitor": lambda m: self.count_behavior(m, 0b01),
                         "Ethnocentric": lambda m: self.count_behavior(m, 0b10),
                         "Humanitarian": lambda m: self.count_behavior(m, 0b11),
-                        "Misperception Stats": lambda m: self.calc_misperception(m)}
+                        "Misperception Mean": lambda m: self.misperception_mean(m),
+                        "Misperception Median": lambda m: self.misperception_median(m),
+                        "Misperception StdDev": lambda m: self.misperception_stdev(m)}
         tag_behavior = {str(i)+BEHAVIOR_KEY[j]: lambda m,i=i,j=j: self.count_tag_behavior(m, i, j) for i in range(1, TAGS+1)
                         for j in range(4)}
         self.datacollector = DataCollector(model_reporters = {**default_data, **tag_behavior})
@@ -168,6 +169,36 @@ class EthnoModel(Model):
         return (np.mean(misperceptions), np.median(misperceptions), np.std(misperceptions))
 
     @staticmethod
+    def misperception_mean(model):
+        """
+        Calculates mean, median, standard dev of misperception trait
+        """
+        misperceptions = []
+        for agent in model.schedule.agents:
+            misperceptions.append(agent.misperception)
+        return np.mean(misperceptions)
+
+    @staticmethod
+    def misperception_median(model):
+        """
+        Calculates mean, median, standard dev of misperception trait
+        """
+        misperceptions = []
+        for agent in model.schedule.agents:
+            misperceptions.append(agent.misperception)
+        return np.median(misperceptions)
+
+    @staticmethod
+    def misperception_stdev(model):
+        """
+        Calculates mean, median, standard dev of misperception trait
+        """
+        misperceptions = []
+        for agent in model.schedule.agents:
+            misperceptions.append(agent.misperception)
+        return np.std(misperceptions)
+
+    @staticmethod
     def count_behavior(model, behavior):
         """
         counts agents with a given behavior
@@ -188,3 +219,16 @@ class EthnoModel(Model):
             if agent.tag == tag and agent.behavior == behavior:
                 count += 1
         return count
+
+def plot_stats(m):
+    data = m.datacollector.get_model_vars_dataframe()
+    ax = data[["Ethnocentric","Humanitarian", "Selfish", "Traitor"]].plot()
+    ax.set_title("Population and Behavior Over Time")
+    ax.set_xlabel("Step")
+    ax.set_ylabel("Number of Agents")
+    _ = ax.legend(bbox_to_anchor=(1.35, 1.025))
+    ax2 = data[["Misperception Mean", "Misperception Median"]].plot()
+    ax2.set_title("Misperception Stats Over Time")
+    ax2.set_xlabel("Step")
+    ax2.set_ylabel("Number of Agents")
+    _ = ax2.legend(bbox_to_anchor=(1.35, 1.025))
