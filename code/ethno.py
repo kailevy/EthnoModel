@@ -58,7 +58,8 @@ class EthnoAgent(Agent):
             homo = int(flip(self.model.mutate))^self.homo
             hetero = int(flip(self.model.mutate))^self.hetero
             behavior = homo * 0b10 + hetero * 0b01
-            misperception = self.misperception + random.uniform(self.model.max_misperception * -0.1, self.model.max_misperception * 0.1) # 10% misperception mutation
+            misperception = self.misperception + random.uniform(self.model.max_misperception * self.model.misp_mutate,
+                                                self.model.max_misperception * -1*self.model.misp_mutate) # 10% misperception mutation
             # limit between 0 and max
             misperception = max(0, misperception)
             misperception = min(self.model.max_misperception, misperception)
@@ -85,6 +86,7 @@ class EthnoAgent(Agent):
         and subtract from own
         """
         for neighbor in self.model.grid.get_neighbors(self.pos, moore=False, include_center=False, radius=1):
+            self.model.total_interactions += 1
             misperceive = flip(self.misperception)
             neighbor_tag = neighbor.tag
             if misperceive:
@@ -93,13 +95,15 @@ class EthnoAgent(Agent):
                 if self.homo:
                     neighbor.ptr += RECEIVE_PTR
                     self.ptr += GIVE_PTR
+                    self.model.total_coops += 1
             else:
                 if self.hetero:
                     neighbor.ptr += RECEIVE_PTR
                     self.ptr += GIVE_PTR
+                    self.model.total_coops += 1
 
 class EthnoModel(Model):
-    def __init__(self, N, width, height, immigrate, mutate, max_misperception, allowed_behaviors=range(4), max_iters=2000):
+    def __init__(self, N, width, height, immigrate, mutate, max_misperception, misp_mutate, allowed_behaviors=range(4), max_iters=2000):
         """
         N: number of agents to start with
         width: width of grid
@@ -113,9 +117,12 @@ class EthnoModel(Model):
         self.immigrate = immigrate
         self.mutate = mutate
         self.max_misperception = max_misperception
+        self.misp_mutate = misp_mutate
         self.grid = MultiGrid(width, height, True)
         self.running = True
         self.allowed_behaviors = allowed_behaviors
+        self.total_interactions = 0
+        self.total_coops = 0
         self.max_iters = max_iters
         self.iter = 0
         self.schedule = StagedActivation(self,stage_list=['reset_ptr', 'play_neighbors', 'reproduce', 'die'],shuffle=True)
