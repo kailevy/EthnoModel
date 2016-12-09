@@ -86,21 +86,21 @@ class EthnoAgent(Agent):
         and subtract from own
         """
         for neighbor in self.model.grid.get_neighbors(self.pos, moore=False, include_center=False, radius=1):
-            self.model.total_interactions += 1
+            # self.model.total_interactions += 1
             misperceive = flip(self.misperception)
             neighbor_tag = neighbor.tag
             if misperceive:
-                neighbor_tag = (neighbor_tag + 1)%4
+                neighbor_tag = random.randint(1,TAGS)
             if self.tag == neighbor_tag:
                 if self.homo:
                     neighbor.ptr += RECEIVE_PTR
                     self.ptr += GIVE_PTR
-                    self.model.total_coops += 1
+                    # self.model.total_coops += 1
             else:
                 if self.hetero:
                     neighbor.ptr += RECEIVE_PTR
                     self.ptr += GIVE_PTR
-                    self.model.total_coops += 1
+                    # self.model.total_coops += 1
 
 class EthnoModel(Model):
     def __init__(self, N, width, height, immigrate, mutate, max_misperception, misp_mutate, allowed_behaviors=range(4), max_iters=2000):
