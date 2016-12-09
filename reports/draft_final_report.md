@@ -50,11 +50,11 @@ The paper by Hammond, Axelrod, Grafen does not discuss ethnocentrism very much, 
 
 This simulation was run for misperception rates of 0 to 1 at intervals of .05. The mean number of agents for each behavior of the final 100 steps of the simulation was measured at each misperception rate.
 
-![Steady state behavior distribution for different values of misperception](./images/final_graphs/global_misp/misp.png)
+![Steady state behavior distribution for different values of misperception](./images/final_graphs/global_misp/misp.PNG)
 
 The heatmap below depicts the behavior with the highest agent count for a given time and misperception rate.
 
-![Varying time and misperception to observe most successful behaviors](./images/final_graphs/global_misp/mispvstime.png)
+![Varying time and misperception to observe most successful behaviors](./images/final_graphs/global_misp/mispvstime.PNG)
 
 **Interpretation** - 
 
