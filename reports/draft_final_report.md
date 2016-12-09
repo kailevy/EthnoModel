@@ -42,13 +42,21 @@ Additionally, we converted the population statistics to percentages, and calcula
 ## Experiment 3 - Global Misperception
 The paper by Hammond, Axelrod, Grafen does not discuss ethnocentrism very much, but does mention the effects of misperception: "The simulation results are also not very sensitive to the possibility that an agent will occasionally misperceive whether or not the other agent in the interaction has the same smell". We were inspired by this to implement some global misperception to the model.
 
-**Question** -
+**Question** - How does standardized misperception impact behavior distribution at our steady state? How does misperception affect the model at different points in time?
 
-**Method** -
+**Method** - The world is initialized with all agents having equal chance of misperceiving their neighbors. Misperceiving means the agent will randomly assume the neighbor is a different tag.
 
-**Results** -
+**Results** - 
 
-**Interpretation** -
+This simulation was run for misperception rates of 0 to 1 at intervals of .05. The mean number of agents for each behavior of the final 100 steps of the simulation was measured at each misperception rate.
+
+![Steady state behavior distribution for different values of misperception](./images/final_graphs/global_misp/misp.png)
+
+The heatmap below depicts the behavior with the highest agent count for a given time and misperception rate.
+
+![Varying time and misperception to observe most successful behaviors](./images/final_graphs/global_misp/mispvstime.png)
+
+**Interpretation** - 
 
 ## Experiment 4 - Inherited Misperception
 Additionally, we decided to try experiments where misperception was an attribute of every agent, rather than an attribute of the whole model.
@@ -57,7 +65,7 @@ Additionally, we decided to try experiments where misperception was an attribute
 
 **Method** - We modified our model so that each agent has a misperception attribute, which determines how likely they are to misperceive each of their neighbors. A misperceived neighbor will mean that the agent plays with the opposite strategy that they normally would. Misperception is passed down to offspring, with a mutation rate that we could specify (we used 5% as a default), meaning the child would have the same misperception value +/- 5%. We ran simulations with various initial conditions, and various mutations rates.
 
-**Results** -
+**Results** - 
 
 First we show default simulation results, with 5% misperception mutation and random starting values. Below are both behavior statistics, and mean & median of misperception over time.
 
