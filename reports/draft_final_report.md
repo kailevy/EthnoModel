@@ -108,7 +108,8 @@ One key take-away from these results is that even with inherited misperception, 
 
 
 ## Learning Goals
-**Subhash** -
+**Subhash** - I would like to gain a better understand of how agent based models are implemented and evolved. I want to learn what types of evaluation metrics matter for our experiments and explore how this project could be applied to other fields as well.
+Working through this implementation and performing the validation experiments has helped me achieve this goal. I'm beginning to see how this type of model could be used to explore other traits of societies or individuals over generations.
 
 **Kai** - I feel like I have done a good job on my learning goals, especially considering what I wrote on the preliminary report. In the report, I expressed my desire to come up with extensions on the model, rather than just replications of the model, and I feel like our misperception extensions have acheived that. We have conducted experiments that we haven't encountered in any existing paper that can be analogous to human behavior. The extension we pursued was not overly complex but still interesting, in my opinion.
 
