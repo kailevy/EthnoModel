@@ -46,7 +46,7 @@ The paper by Hammond, Axelrod, Grafen does not discuss ethnocentrism very much, 
 
 **Method** - The world is initialized with all agents having equal chance of misperceiving their neighbors. Misperceiving means the agent will randomly assume the neighbor is a different tag.
 
-**Results** - 
+**Results** -
 
 This simulation was run for misperception rates of 0 to 1 at intervals of .05. The mean number of agents for each behavior of the final 100 steps of the simulation was measured at each misperception rate.
 
@@ -59,13 +59,13 @@ The heatmap below depicts the behavior with the highest agent count for a given 
 **Interpretation** - It appears to be advantageous for traitorous behavior in conditions of high misperception. This makes intuitive sense because traitors have exposure to more cooperation possibilities when the chance of misperceiving is higher. As expected, Ethnocentrism succeeds in the most regions. Global misperception clearly has an impact on the model throughout time. A critical point for misperception shown by both graphs is around between 0.6 and 0.8 where the most successful behavior is in flux.
 
 ## Experiment 4 - Inherited Misperception
-Additionally, we decided to try experiments where misperception was an attribute of every agent, rather than an attribute of the whole model.
+Additionally, we decided to try experiments where misperception was an attribute of every agent, rather than an attribute of the whole model. This implementation also has the rules that when an agent misperceives, it randomly selects which ethnicity to perceive-- which may be the correct one.
 
 **Question** - How does inherited misperception impact behavior distribution at our steady state? Does the attribute tend to settle? How do various initial conditions and mutation rates affect these?
 
 **Method** - We modified our model so that each agent has a misperception attribute, which determines how likely they are to misperceive each of their neighbors. A misperceived neighbor will mean that the agent plays with the opposite strategy that they normally would. Misperception is passed down to offspring, with a mutation rate that we could specify (we used 5% as a default), meaning the child would have the same misperception value +/- 5%. We ran simulations with various initial conditions, and various mutations rates.
 
-**Results** - 
+**Results** -
 
 First we show default simulation results, with 5% misperception mutation and random starting values. Below are both behavior statistics, and mean & median of misperception over time.
 
@@ -106,6 +106,8 @@ And finally we swept the mutation rate (with random starting conditions) from 0%
 **Interpretation** -
 One key take-away from these results is that even with inherited misperception, ethnocentric behavior emerges dominant. There is a clear trend for misperception to mutate down to some "steady state", which is around 30% with our default rate of 5% mutation, but as high as 50% for other mutation rates. As we saw in the previous experiments, ethnocentrism only suffered significantly when the misperception rate was very high, so this "steady-state" behavior is what allows ethnocentrism to dominate. Additionally, the starting misperception values do not seem to make a big difference in the long run of things-- regardless, the misperception trait evolves to its natural steady state.
 
+## Remaining Work
+We are still trying to iron out some questions which can be more analogous to human behavior, rather than just the implementation of our model. Additionally, we will likely modify the global misperception experiment to do the same random choice as the agent one, so that agents may "correctly misperceive".
 
 ## Learning Goals
 **Subhash** - I would like to gain a better understand of how agent based models are implemented and evolved. I want to learn what types of evaluation metrics matter for our experiments and explore how this project could be applied to other fields as well.
