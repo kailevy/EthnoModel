@@ -56,7 +56,7 @@ The heatmap below depicts the behavior with the highest agent count for a given 
 
 ![Varying time and misperception to observe most successful behaviors](./images/final_graphs/global_misp/mispvstime.PNG)
 
-**Interpretation** - 
+**Interpretation** - It appears to be advantageous for traitorous behavior in conditions of high misperception. This makes intuitive sense because traitors have exposure to more cooperation possibilities when the chance of misperceiving is higher. As expected, Ethnocentrism succeeds in the most regions. Global misperception clearly has an impact on the model throughout time. A critical point for misperception shown by both graphs is around between 0.6 and 0.8 where the most successful behavior is in flux.
 
 ## Experiment 4 - Inherited Misperception
 Additionally, we decided to try experiments where misperception was an attribute of every agent, rather than an attribute of the whole model.
