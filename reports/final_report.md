@@ -2,7 +2,7 @@
 #### Authors: Subhash Gubba & Kai Levy
 
 ## Abstract
-We investigate human behavior and social systems by using game theory in an agent-based model. In particular, we investigate ethnocentric behavior-- where agents are inclined to help only agents like them. First we reproduce experiments about the dominance of ethnocentric behaviors using the Mesa Python ABM library. Then, we extend it by implementing misperception, the chance for an agent to wrongly identify another agent, and conduct experiments to analyze it. We find that ethnocentrism's dominance is robust, still appearing when agents are misperceiving more than 50% of the time.
+We investigate human behavior and social systems by using game theory in an agent-based model. In our model, agents play neighboring agents in a one-shot prisoner's dilemma game to gain reproductive advantage, and several different behaviors are allowed. In particular, we investigate ethnocentric behavior-- where agents are inclined to help only agents like them. First we reproduce experiments about the dominance of ethnocentric behaviors using the Mesa Python ABM library. Then, we extend it by implementing misperception, the chance for an agent to wrongly identify another agent, and conduct experiments to analyze it. We find that ethnocentrism's dominance is robust, still appearing when agents are misperceiving more than 50% of the time.
 
 ## Model and Validation
 To begin we replicate the agent-based ethnicity model proposed by Hartshorn, Kaznatcheev, and Shultz [1] and a few of their experiments to validate our implementation against theirs.
@@ -19,16 +19,20 @@ To begin we replicate the agent-based ethnicity model proposed by Hartshorn, Kaz
   - Selfish agents defect against all
 - At the beginning of each time step, we immigrate one agent with random attributes into an empty cell
 - Every agent's potential to reproduce -`ptr`- is set to `0.12`
-- Next, every agent sees each of up to four neighbors, and, based off of its behavior and the neighbor's tag, decides whether to cooperate or defect
+- Next, every agent sees each of up to four neighbors, and, based off of its behavior and the neighbor's tag, decides whether to cooperate or defect, in a one-shot game of prisoner's dilemma
   - If it cooperates, it reduces its own `ptr` by `0.01` and adds `0.03` to the neighbors `ptr`
 - In random order, agents determine whether or not they reproduce based on their `ptr`
   - If an agent is to reproduce, it must have an empty adjacent cell
   - It creates an offspring in an adjacent cell, with the same attributes but a mutation rate of `0.005` per attribute
-- Agents then determine whether or not they die by a `0.1` death rate
+- Agents then determine whether or not it dies by a `0.1` death rate
 
 The first experiment from Hartshorn et al., runs the simulation for 1000 time steps. They then count agents by behaviors (**not** by ethnicity), which we shall refer to as the *behavior distribution*, and plot the counts over time. This is averaged over 50 simulations.
 
 **Results** - See the results below.
+
+![](./images/ethno.gif)
+
+*This animation demonstrates a typical world behavior during the first 150 steps*
 
 ![](./images/final_graphs/exp1_original.png)
 
@@ -83,7 +87,7 @@ Our first experiment involves a model-wide misperception chance.
 - When an agents interacts with a neighbor, it may misperceive the neighbor, by the misperception chance.
 - If it does misperceive, it randomly chooses at tag that it perceives the neighbor to be, out of the 4 tags.
 - It then uses the strategy of the tag it perceives to determine whether it cooperates or defects
-- If it doesn't misperceives, it plays normally
+- If it doesn't misperceive, it plays normally
 
 **Results** -
 
