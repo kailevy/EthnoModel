@@ -18,7 +18,7 @@ To begin we replicate the agent-based ethnicity model proposed by Hartshorn, Kaz
   - Traitorous agents cooperate only with agents of a different tag
   - Selfish agents defect against all
 - At the beginning of each time step, we immigrate one agent with random attributes into an empty cell
-- Every agent's potential to reproduce (`ptr`) is set to 0.12
+- Every agent's potential to reproduce -`ptr`- is set to `0.12`
 - Next, every agent sees each of up to four neighbors, and, based off of its behavior and the neighbor's tag, decides whether to cooperate or defect
   - If it cooperates, it reduces its own `ptr` by `0.01` and adds `0.03` to the neighbors `ptr`
 - In random order, agents determine whether or not they reproduce based on their `ptr`
@@ -42,7 +42,7 @@ The first experiment from Hartshorn et al., runs the simulation for 1000 time st
 **Interpretation** - The results closely resemble that of the original model's findings: Ethnocentrism and Humanitarianism are the leaders in the early stages, with Ethnocentrism dominating by approximately the 500th step. Traitorous is the worst performing trait, then Selfish, but neither of them die out completely.
 
 ### Experiment 2 - Varying Allowed Behaviors Validation
-Hartshor et al. conduct experiments where they only allow certain behaviors to be present, and measure behavior statistics for every permutation of allowed behavior.
+Hartshorn et al. conduct experiments where they only allow certain behaviors to be present, and measure behavior statistics for every permutation of allowed behavior.
 
 **Question** - Does our model perform the same way the original model does when certain behaviors are included or excluded? Is our implementation a valid one?
 
@@ -51,23 +51,23 @@ Hartshor et al. conduct experiments where they only allow certain behaviors to b
 - Last 100 steps behavior counts are averaged
 - This process is repeated 10 times and final counts are averaged
 
-**Results** - See the results below. This first table is from the Hartshor et al. The second table contains our results.
+**Results** - See the results below. This first table is from the Hartshorn et al. The second table contains our results.
 
 ![](./images/final_graphs/meanagentstable.PNG)
 
-*Hartshor et al. behavior counts*
+*Hartshorn et al. behavior counts*
 
 ![](./images/final_graphs/stable_agents_results.png)
 
 *Our behavior counts*
 
-Additionally, we convert the population statistics to percentages, and calculate the difference between the Hartshor et al. results and ours. This is shown below:
+Additionally, we convert the population statistics to percentages, and calculate the difference between the Hartshorn et al. results and ours. This is shown below:
 
 ![](./images/final_graphs/percent_diffs.png)
 
 *Percent differences between tables*
 
-**Interpretation** - Our results match closely with the table from Hartshor et al. The differences in percentages depicted above are small (less than 5%) with the exception of the simulation where only selfish and traitorous behaviors were included. Based on these results, it should be safe to say that our implementation of the model is accurate to the original one.
+**Interpretation** - Our results match closely with the table from Hartshorn et al. The differences in percentages depicted above are small (less than 5%) with the exception of the simulation where only selfish and traitorous behaviors were included. Based on these results, it should be safe to say that our implementation of the model is accurate to the original one.
 
 ## Extensions with Misperception
 Hammond, Axelrod, and Grafen [3] present a very similar model to ours. Additionally, they mention the effects of misperception: "The simulation results are also not very sensitive to the possibility that an agent will occasionally misperceive whether or not the other agent in the interaction has the same smell".  However, they do not provide more evidence or experiments.
