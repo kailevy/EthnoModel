@@ -31,9 +31,11 @@ The first experiment from Hartshorn et al., runs the simulation for 1000 time st
 **Results** - See the results below.
 
 ![](./images/final_graphs/exp1_original.png)
+
 *Behavior distribution timeseries from Hartshorn et al.*
 
 ![](./images/final_graphs/replicagraph.PNG)
+
 *Our behavior distribution timeseries.*
 
 
@@ -52,14 +54,17 @@ Hartshor et al. conduct experiments where they only allow certain behaviors to b
 **Results** - See the results below. This first table is from the Hartshor et al. The second table contains our results.
 
 ![](./images/final_graphs/meanagentstable.PNG)
+
 *Hartshor et al. behavior counts*
 
 ![](./images/final_graphs/stable_agents_results.png)
+
 *Our behavior counts*
 
 Additionally, we convert the population statistics to percentages, and calculate the difference between the Hartshor et al. results and ours. This is shown below:
 
 ![](./images/final_graphs/percent_diffs.png)
+
 *% differences between tables*
 
 **Interpretation** - Our results match closely with the table from Hartshor et al. The differences in percentages depicted above are small (less than 5%) with the exception of the simulation where only selfish and traitorous behaviors were included. Based on these results, it should be safe to say that our implementation of the model is accurate to the original one.
@@ -83,16 +88,23 @@ Our first experiment involves a model-wide misperception chance.
 **Results** -
 
 ![](./images/final_graphs/exp3/40misp.PNG)
+
 *Global misperception set to 0.4 chance.*
+
 ![](./images/final_graphs/exp3/80misp.PNG)
+
 *Global misperception set to 0.8 chance.*
+
 ![](./images/final_graphs/exp3/100misp.PNG)
+
 *Global misperception set to 1.0 chance.*
 
 ![](./images/final_graphs/exp3/mispvar.PNG)
+
 This simulation runs for misperception rates of 0 to 1 at intervals of .05. The mean number of agents for each behavior of the final 100 steps of the simulation was measured at each misperception rate.
 
 ![](./images/final_graphs/exp3/mispvstime2.PNG)
+
 *The heatmap above depicts the behaviors with the highest agent counts for a given time and misperception rate.*
 
 **Interpretation** - Where as in a world with 0 misperception Ethnocentrism dominates, a world riddled with misperception gives way to Humanitarianism. The first three time series indicate how increased introduction of global misperception increases the advantage held by Humanitarian behaviors. Steady-state behavior also indicates misperception is negatively correlated with Ethnocentric success. Finally, our heatmap demonstrates the robustness of Ethnocentric strategies which breaks down at a critical point of around .7 and .8 misperception rates. Beyond these points, Humanitarians emerge victorious.
