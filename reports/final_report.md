@@ -32,7 +32,7 @@ The first experiment from Hartshorn et al., runs the simulation for 1000 time st
 
 ![](./images/ethno.gif)
 
-*This animation demonstrates a typical world behavior during the first 150 steps*
+*This animation demonstrates a typical world behavior during the first 150 steps. Large clusters of similar agents form as well-performing agents reproduce.*
 
 ![](./images/final_graphs/exp1_original.png)
 
