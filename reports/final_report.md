@@ -2,7 +2,7 @@
 #### Authors: Subhash Gubba & Kai Levy
 
 ## Abstract
-We investigate game theory strategies and their implementations to see which ones emerge dominant. We use agent-based modeling (with the help of the Mesa Python ABM library) to investigate it. Our first approach is to mimic the “Evolution of Ethnocentrism” experiment and try various ways to extend it in small ways. Then, we introduce misperception to the model and conduct experiments to analyze it.
+We investigate human behavior and social systems by using game theory in an agent-based model. In particular, we investigate ethnocentric behavior-- where agents are inclined to help only agents like them. First we reproduce experiments about the dominance of ethnocentric behaviors using the Mesa Python ABM library. Then, we extend it by implementing misperception, the chance for an agent to wrongly identify another agent, and conduct experiments to analyze it. We find that ethnocentrism's dominance is robust, still appearing when agents are misperceiving more than 50% of the time.
 
 ## Model and Validation
 To begin we replicate the agent-based ethnicity model proposed by Hartshorn, Kaznatcheev, and Shultz [1] and a few of their experiments to validate our implementation against theirs.
@@ -65,7 +65,7 @@ Additionally, we convert the population statistics to percentages, and calculate
 
 ![](./images/final_graphs/percent_diffs.png)
 
-*% differences between tables*
+*Percent differences between tables*
 
 **Interpretation** - Our results match closely with the table from Hartshor et al. The differences in percentages depicted above are small (less than 5%) with the exception of the simulation where only selfish and traitorous behaviors were included. Based on these results, it should be safe to say that our implementation of the model is accurate to the original one.
 
@@ -77,7 +77,7 @@ We implement misperception in our model, in two separate ways-- by having every 
 ### Experiment 3 - Global Misperception
 Our first experiment involves a model-wide misperception chance.
 
-**Question** - How does misperception at a global level impact behavior distribution at our steady state? How does misperception affect the model at different points in time?
+**Question** - How does misperception at a global level impact behavior distribution at our steady state? At what level of misperception does the behavior distribution change significantly? How does misperception affect the model at different points in time?
 
 **Method** - The world is initialized with all agents having equal chance of misperceiving their neighbors, between 0 and 1.
 - When an agents interacts with a neighbor, it may misperceive the neighbor, by the misperception chance.
@@ -89,25 +89,27 @@ Our first experiment involves a model-wide misperception chance.
 
 ![](./images/final_graphs/exp3/40misp.PNG)
 
-*Global misperception set to 0.4 chance.*
+*Behavior distribution with global misperception set to 40% chance. Ethnocentrism dominates without too much trouble, and the distribution looks much like the original experiment.*
 
 ![](./images/final_graphs/exp3/80misp.PNG)
 
-*Global misperception set to 0.8 chance.*
+*Behavior distribution with global misperception set to 80% chance. Ethnocentrism struggles (finishes in second) while humanitarianism dominates, and traitorous does better than selfish.*
 
 ![](./images/final_graphs/exp3/100misp.PNG)
 
-*Global misperception set to 1.0 chance.*
+*Behavior distribution with global misperception set to 100%. Ethnocentrism does even worse than traitorous.*
+
+Then we seep misperception from 0-100% with intervals of 5%, and examine behavior distributions.
 
 ![](./images/final_graphs/exp3/mispvar.PNG)
 
-This simulation runs for misperception rates of 0 to 1 at intervals of .05. The mean number of agents for each behavior of the final 100 steps of the simulation was measured at each misperception rate.
+*The mean number of agents for each behavior of the final 100 steps of the simulation was measured at each misperception rate. As misperception rises, ethnocentrism does worse, losing out to humanitarianism at 80%. Traitorous does slightly better with high misperception.*
 
 ![](./images/final_graphs/exp3/mispvstime2.PNG)
 
-*The heatmap above depicts the behaviors with the highest agent counts for a given time and misperception rate.*
+*The cell graph above depicts the behaviors with the highest agent counts for a given time and misperception rate. As misperception rises, humanitarianism stays top for longer at the beginning.*
 
-**Interpretation** - Where as in a world with 0 misperception Ethnocentrism dominates, a world riddled with misperception gives way to Humanitarianism. The first three time series indicate how increased introduction of global misperception increases the advantage held by Humanitarian behaviors. Steady-state behavior also indicates misperception is negatively correlated with Ethnocentric success. Finally, our heatmap demonstrates the robustness of Ethnocentric strategies which breaks down at a critical point of around .7 and .8 misperception rates. Beyond these points, Humanitarians emerge victorious.
+**Interpretation** - Where as in a world with 0 misperception ethnocentrism dominates, a world riddled with misperception gives way to humanitarianism. The first three time series indicate how increased introduction of global misperception increases the advantage held by humanitarian behaviors. Steady-state behavior also indicates misperception is negatively correlated with ethnocentric success, but also demonstrates the robustness of ethnocentric strategies which only breaks down at a critical point of 80% misperception rates. Beyond this, humanitarians emerge victorious. Our cell graph demonstrates how, as misperception rises, the period of early humanitarian dominance lasts for longer, even if ethnocentrism comes out on top.
 
 ### Experiment 4 - Inherited Misperception
 Additionally, we experiment with misperception as an attribute of every agent, rather than an attribute of the whole model.
@@ -144,7 +146,7 @@ Additionally, we sweep starting misperception in increments of 5% and average th
 
 ![](./images/final_graphs/agent_sweeps/sweep_start_misp.png)
 
-*Last 100 timestep average of initialization sweep. Ethnocentrism ends up well on top regardless of the initial condition, and the behavior distribution is relatively constant regardless. The misperception steady state spikes slightly, but is largely in the range of 20%-30%.*
+*Last 100 timestep average of initialization sweep. Ethnocentrism ends up well on top regardless of the initial condition, and the behavior distribution is steady regardless. The misperception steady state spikes slightly, but is largely in the range of 20%-30%.*
 
 ![](./images/final_graphs/agent_sweeps/cell_start_misp.png)
 *Cell graph displaying dominant behavior over time for the same sweep as above. Ethnocentrism is largely dominant, with some pockets of early humanitarian dominance-- but not apparently correlated to initial misperception.*
@@ -153,14 +155,14 @@ Finally, we sweep the misperception mutation rate (with default initialization),
 
 ![](./images/final_graphs/agent_sweeps/sweep_agent_mutation_misp.png)
 
-*Last 100 timestep average of mutation sweep. Ethnocentrism still dominates in the end, although slightly less convincingly than most other simulations. Humanitarianism does slightly better, and the misperception mean settles at 45-50% in most cases when mutation is above 20%.*
+*The mean number of agents for each behavior of the final 100 steps simulations with mutation sweep. Ethnocentrism still dominates in the end, although slightly less convincingly than most other simulations. Humanitarianism does slightly better, and the misperception mean settles at 45-50% in most cases when mutation is above 20%.*
 
 ![](./images/final_graphs/agent_sweeps/cell_mutation_misp.png)
 
 *Cell graph of above sweep, showing ethnocentric dominance despite early humanitarian improvements.*
 
 **Interpretation** -
-One key take-away from these results is that even with inherited misperception, ethnocentric behavior emerges dominant. There is a clear trend for misperception to mutate down to some "steady state", which is around 25-30% with our default rate of 5% mutation, but as high as 50% for higher mutation rates. As we saw in the previous experiments, ethnocentrism only suffered significantly when the misperception rate was very high, so this "steady-state" behavior is what allows ethnocentrism to dominate. We can see that while misperception remains high, humanitarianism does well. However, it is generally disadvantageous for agents (especially ethnocentric ones) to misperceive their neighbors, so the decline of misperception towards its steady state closely matches the rise of ethnocentrism in our simulations. Additionally, the starting misperception values do not seem to make a big difference in the long run of things-- regardless, the misperception trait evolves to its natural steady state.
+One key take-away from these results is that even with inherited misperception, ethnocentric behavior emerges dominant. There is a clear trend for misperception to mutate down to some "steady state", which is around 25-30% with our default rate of 5% mutation, but as high as 50% for higher mutation rates. As we saw in the previous experiments, ethnocentrism only suffered significantly when the misperception rate was very high, so this steady-state behavior is what allows ethnocentrism to dominate. We can see that while misperception remains high, humanitarianism does well. However, it is generally disadvantageous for agents (especially ethnocentric ones) to misperceive their neighbors, so the decline of misperception towards its steady state closely matches the rise of ethnocentrism in our simulations. Additionally, the starting misperception values do not make a big difference in the long run of things-- regardless, the misperception trait evolves to its natural steady state.
 
 
 ## Bibliography
