@@ -33,33 +33,39 @@ The first experiment from Hartshorn et al., runs the simulation for 1000 time st
 ![](./images/final_graphs/exp1_original.png)
 *Behavior distribution timeseries from Hartshorn et al.*
 
-![](./images/final_graphs/exp1_results.png)
+![](./images/final_graphs/replicagraph.PNG)
 *Our behavior distribution timeseries.*
 
 
 **Interpretation** - The results closely resemble that of the original model's findings: Ethnocentrism and Humanitarianism are the leaders in the early stages, with Ethnocentrism dominating by approximately the 500th step. Traitorous is the worst performing trait, then Selfish, but neither of them die out completely.
 
 ### Experiment 2 - Varying Allowed Behaviors Validation
-The paper by Hartshorn, Kaznatcheev, and Shultz also conducted experiments where they only allowed certain behaviors to be present, and measured behavior statistics for every permutation of allowed behavior.
+Hartshor et al. conduct experiments where they only allow certain behaviors to be present, and measure behavior statistics for every permutation of allowed behavior.
 
-**Question** - Does our model perform the same way the original model does when behaviors are variably included?
+**Question** - Does our model perform the same way the original model does when certain behaviors are included or excluded? Is our implementation a valid one?
 
-**Method** - We use the same model implemented, and run it for 2000 steps for each combination of allowed behavior, and then observe the average behavior counts for the last 100 steps of the simulation.
+**Method** - The model is run with the powerset of all behaviors: E, H, S, and T. For each subset:
+- Model is run for 2000 steps
+- Last 100 steps behavior counts are averaged
+- This process is repeated 10 times and final counts are averaged
 
-**Results** - See the results below. This first table is from the original paper. The second table is the our results.
+**Results** - See the results below. This first table is from the Hartshor et al. The second table contains our results.
 
 ![](./images/final_graphs/meanagentstable.PNG)
+*Hartshor et al. behavior counts*
 
 ![](./images/final_graphs/stable_agents_results.png)
+*Our behavior counts*
 
-Additionally, we converted the population statistics to percentages, and calculated the difference between the paper's results and ours. This is shown below:
+Additionally, we convert the population statistics to percentages, and calculate the difference between the Hartshor et al. results and ours. This is shown below:
 
 ![](./images/final_graphs/percent_diffs.png)
+*% differences between tables*
 
-**Interpretation** - Our results above seem to match relatively closely with the table from the paper. The differences in percentages depicted above are not very large (less than 5%) with the exception of the simulation where only selfish and traitorous behaviors were included. Judging based on this fact, it should be safe to say that our implementation of the model is accurate to that of the original one.
+**Interpretation** - Our results match closely with the table from Hartshor et al. The differences in percentages depicted above are small (less than 5%) with the exception of the simulation where only selfish and traitorous behaviors were included. Based on these results, it should be safe to say that our implementation of the model is accurate to the original one.
 
 ## Extensions with Misperception
-Hammond, Axelrod, and Grafen [3] present a very similar model to ours. Additionally, they mention the effects of misperception: "The simulation results are also not very sensitive to the possibility that an agent will occasionally misperceive whether or not the other agent in the interaction has the same smell".  However, they do not much more evidence or experiments.
+Hammond, Axelrod, and Grafen [3] present a very similar model to ours. Additionally, they mention the effects of misperception: "The simulation results are also not very sensitive to the possibility that an agent will occasionally misperceive whether or not the other agent in the interaction has the same smell".  However, they do not provide more evidence or experiments.
 
 We implement misperception in our model, in two separate ways-- by having every agent misperceive at the same rate, and by having agents pass down a misperception attribute to offspring. In either case, an agent misperceiving its neighbor determines its own strategy by "smelling" the neighbor as a random ethnicity.
 
@@ -72,19 +78,24 @@ Our first experiment involves a model-wide misperception chance.
 - When an agents interacts with a neighbor, it may misperceive the neighbor, by the misperception chance.
 - If it does misperceive, it randomly chooses at tag that it perceives the neighbor to be, out of the 4 tags.
 - It then uses the strategy of the tag it perceives to determine whether it cooperates or defects
-- If it doesn't misperceives, it plays normall
+- If it doesn't misperceives, it plays normally
 
 **Results** -
 
-This simulation was run for misperception rates of 0 to 1 at intervals of .05. The mean number of agents for each behavior of the final 100 steps of the simulation was measured at each misperception rate.
+![](./images/final_graphs/exp3/40misp.PNG)
+*Global misperception set to 0.4 chance.*
+![](./images/final_graphs/exp3/80misp.PNG)
+*Global misperception set to 0.8 chance.*
+![](./images/final_graphs/exp3/100misp.PNG)
+*Global misperception set to 1.0 chance.*
 
-![](./images/final_graphs/global_misp/misp.PNG)
+![](./images/final_graphs/exp3/mispvar.PNG)
+This simulation runs for misperception rates of 0 to 1 at intervals of .05. The mean number of agents for each behavior of the final 100 steps of the simulation was measured at each misperception rate.
 
-The heatmap below depicts the behavior with the highest agent count for a given time and misperception rate.
+![](./images/final_graphs/exp3/mispvstime2.PNG)
+*The heatmap above depicts the behaviors with the highest agent counts for a given time and misperception rate.*
 
-![](./images/final_graphs/global_misp/mispvstime.PNG)
-
-**Interpretation** - It appears to be advantageous for traitorous behavior in conditions of high misperception. This makes intuitive sense because traitors have exposure to more cooperation possibilities when the chance of misperceiving is higher. As expected, Ethnocentrism succeeds in the most regions. Global misperception clearly has an impact on the model throughout time. A critical point for misperception shown by both graphs is around between 0.6 and 0.8 where the most successful behavior is in flux.
+**Interpretation** - Where as in a world with 0 misperception Ethnocentrism dominates, a world riddled with misperception gives way to Humanitarianism. The first three time series indicate how increased introduction of global misperception increases the advantage held by Humanitarian behaviors. Steady-state behavior also indicates misperception is negatively correlated with Ethnocentric success. Finally, our heatmap demonstrates the robustness of Ethnocentric strategies which breaks down at a critical point of around .7 and .8 misperception rates. Beyond these points, Humanitarians emerge victorious.
 
 ### Experiment 4 - Inherited Misperception
 Additionally, we experiment with misperception as an attribute of every agent, rather than an attribute of the whole model.
