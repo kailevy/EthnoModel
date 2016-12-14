@@ -82,7 +82,7 @@ class EthnoAgent(Agent):
             misperceive = flip(self.model.misperception)
             neighbor_tag = neighbor.tag
             if misperceive:
-                neighbor_tag = (neighbor_tag + 1)%4
+                neighbor_tag = random.randint(1,TAGS)
             if self.tag == neighbor_tag:
                 if self.homo:
                     neighbor.ptr += RECEIVE_PTR
