@@ -26,16 +26,18 @@ To begin we replicate the agent-based ethnicity model proposed by Hartshorn, Kaz
   - It creates an offspring in an adjacent cell, with the same attributes but a mutation rate of `0.005` per attribute
 - Agents then determine whether or not they die by a `0.1` death rate
 
-The first experiment from Hartshorn et al., runs the simulation for 1000 time steps. They then count agents by behaviors (**not** by ethnicity), which we shall refer to as the *behavior distribution*, and plot the counts over time.
+The first experiment from Hartshorn et al., runs the simulation for 1000 time steps. They then count agents by behaviors (**not** by ethnicity), which we shall refer to as the *behavior distribution*, and plot the counts over time. This is averaged over 50 simulations.
 
-**Results** - See the results below. The first graph is the behavior distribution over 1000 steps that we attempted to recreate. And the second graph is our own simulation results over 1000 steps.
+**Results** - See the results below.
 
 ![](./images/final_graphs/exp1_original.png)
+*Behavior distribution timeseries from Hartshorn et al.*
 
 ![](./images/final_graphs/exp1_results.png)
+*Our behavior distribution timeseries*
 
 
-**Interpretation** - The results very closely resemble that of the original model's findings: Ethnocentrism and Humanitarianism are the leaders in the early stages, with ethnocentrism dominating by the 500th (or so) step. Traitorous is the worst performing trait, then Selfish, but neither of them die out completely.
+**Interpretation** - The results closely resemble that of the original model's findings: Ethnocentrism and Humanitarianism are the leaders in the early stages, with Ethnocentrism dominating by approximately the 500th step. Traitorous is the worst performing trait, then Selfish, but neither of them die out completely.
 
 ### Experiment 2 - Varying Allowed Behaviors Validation
 The paper by Hartshorn, Kaznatcheev, and Shultz also conducted experiments where they only allowed certain behaviors to be present, and measured behavior statistics for every permutation of allowed behavior.
@@ -56,12 +58,20 @@ Additionally, we converted the population statistics to percentages, and calcula
 
 **Interpretation** - Our results above seem to match relatively closely with the table from the paper. The differences in percentages depicted above are not very large (less than 5%) with the exception of the simulation where only selfish and traitorous behaviors were included. Judging based on this fact, it should be safe to say that our implementation of the model is accurate to that of the original one.
 
+## Extensions with Misperception
+Hammond, Axelrod, and Grafen [3] present a very similar model to ours. Additionally, they mention the effects of misperception: "The simulation results are also not very sensitive to the possibility that an agent will occasionally misperceive whether or not the other agent in the interaction has the same smell".  However, they do not much more evidence or experiments.
+
+We implement misperception in our model, in two separate ways-- by having every agent misperceive at the same rate, and by having agents pass down a misperception attribute to offspring. In either case, an agent misperceiving its neighbor determines its own strategy by "smelling" the neighbor as a random ethnicity.
+
 ### Experiment 3 - Global Misperception
-The paper by Hammond, Axelrod, Grafen does not discuss ethnocentrism very much, but does mention the effects of misperception: "The simulation results are also not very sensitive to the possibility that an agent will occasionally misperceive whether or not the other agent in the interaction has the same smell". We were inspired by this to implement some global misperception to the model.
 
-**Question** - How does standardized misperception impact behavior distribution at our steady state? How does misperception affect the model at different points in time?
+**Question** - How does misperception at a global level impact behavior distribution at our steady state? How does misperception affect the model at different points in time?
 
-**Method** - The world is initialized with all agents having equal chance of misperceiving their neighbors. Misperceiving means the agent will randomly assume the neighbor is a different tag.
+**Method** - The world is initialized with all agents having equal chance of misperceiving their neighbors, between 0 and 1.
+- When an agents interacts with a neighbor, it may misperceive the neighbor, by the misperception chance.
+- If it does misperceive, it randomly chooses at tag that it perceives the neighbor to be, out of the 4 tags.
+- It then uses the strategy of the tag it perceives to determine whether it cooperates or defects
+- If it doesn't misperceives, it plays normall
 
 **Results** -
 
@@ -125,6 +135,6 @@ Working through this implementation and performing the validation experiments ha
 **Kai** - I feel like I have done a good job on my learning goals, especially considering what I wrote on the preliminary report. In the report, I expressed my desire to come up with extensions on the model, rather than just replications of the model, and I feel like our misperception extensions have acheived that. We have conducted experiments that we haven't encountered in any existing paper that can be analogous to human behavior. The extension we pursued was not overly complex but still interesting, in my opinion.
 
 ## Bibliography
-1. Max Hartshorna, Artem Kaznatcheeva, Thomas Shultz. “The Evolutionary Dominance of Ethnocentric Cooperation” (2013). Replicates the experiment from Hammond, Axelrod (2006). Investigates different “worlds” where certain behaviors may or may not be present, and demonstrates that humanitarianism becomes dominant in the absence of ethnocentrism, but ethnocentrism dominates otherwise.
+1. Max Hartshorn, Artem Kaznatcheev, Thomas Shultz. “The Evolutionary Dominance of Ethnocentric Cooperation” (2013). Replicates the experiment from Hammond, Axelrod (2006). Investigates different “worlds” where certain behaviors may or may not be present, and demonstrates that humanitarianism becomes dominant in the absence of ethnocentrism, but ethnocentrism dominates otherwise.
 2. Ross Hammond, Robert Axelrod. “The Evolution of Ethnocentrism” (2006). Investigates prisoner’s dilemma on a grid, with four basic tags and linked behaviors. Simulates the agents by playing the game one-off, with results having implications on individual reproductivity. Demonstrates that in-group favoritism can emerge as beneficial for groups, even when individual cooperation is costly.
 3. Ross Hammond, Robert Axelrod, Alan Grafen. "Altruism via kin-selection strategies that rely on arbitrary tags with which they co-evolve" (2004). Analyzes through simulation (with a near-identical model to ours) and mathematics how altruism can emerge and be sustained in a co-evolutionary setting.
